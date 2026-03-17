@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeatView Pro - 全球演出视角指南</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo" onclick="router('home')">
+                <i class="fas fa-layer-group logo-icon"></i> 
+                <span>SeatView</span>
+            </div>
+            <div class="nav-center">
+                <button class="view-toggle" onclick="toggleView()">
+                    <i class="fas fa-th-large" id="viewIcon"></i>
+                    <span id="viewText">网格视图</span>
+                </button>
+            </div>
+            <div class="nav-right">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <ul class="nav-links" id="navLinks">
+                    <!-- JS 动态填充 -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 1. 首页 (Home Page) -->
+    <main id="home-page" class="page-section active">
+        <!-- Hero 区域 -->
+        <header class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="hero-badge"><i class="fas fa-sparkles"></i> 全新升级</span>
+                <h1>在购票前，<br>预见你的感动时刻</h1>
+                <p>汇集全球用户上传的 50,000+ 真实座位视角，拒绝遮挡，拒绝遗憾。</p>
+                
+                <div class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="搜索场馆 (如: 伯纳乌, 悉尼歌剧院)..." onkeyup="handleSearch()">
+                    <button class="btn-search" onclick="handleSearch()">搜索</button>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item"><i class="fas fa-check-circle"></i> 100% 真实拍摄</div>
+                    <div class="stat-item"><i class="fas fa-globe-americas"></i> 覆盖 50+ 国家</div>
+                    <div class="stat-item"><i class="fas fa-users"></i> 10,000+ 用户</div>
+                    <div class="stat-item"><i class="fas fa-camera"></i> 50,000+ 视角</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 内容区域 -->
+        <section class="container main-content">
+            <div class="section-header">
+                <div>
+                    <h2>热门视角推荐</h2>
+                    <p class="subtitle">探索最近被查看最多的座位</p>
+                </div>
+                <div class="filter-tags">
+                    <button class="tag active" onclick="filterTag('all')">全部</button>
+                    <button class="tag" onclick="filterTag('concert')"><i class="fas fa-music"></i> 演唱会</button>
+                    <button class="tag" onclick="filterTag('sport')"><i class="fas fa-futbol"></i> 体育赛事</button>
+                    <button class="tag" onclick="filterTag('theater')"><i class="fas fa-masks-theater"></i> 剧院/艺术</button>
+                </div>
+            </div>
+            
+            <!-- 网格视图 -->
+            <div id="photoGrid" class="photo-grid">
+                <!-- JS 动态插入图片 -->
+            </div>
+            
+            <!-- 地图视图 -->
+            <div id="mapView" class="map-view" style="display: none;">
+                <div id="map"></div>
+            </div>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="far fa-folder-open"></i></div>
+                <h3>未找到相关结果</h3>
+                <p>试试搜索 "足球" 或 "音乐厅"</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 2. 详情页 -->
+    <div id="detail-page" class="page-section">
+        <div class="detail-container">
+            <button class="back-btn" onclick="router('home')">
+                <i class="fas fa-arrow-left"></i> 返回
+            </button>
+            <div id="detailContent">
+                <!-- JS 动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 登录页 -->
+    <div id="login-page" class="page-section auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo"><i class="fas fa-layer-group"></i></div>
+                <h2>欢迎回来</h2>
+                <p>登录以分享您的视角</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> 电子邮箱</label>
+                    <input type="email" id="loginEmail" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> 密码</label>
+                    <input type="password" id="loginPass" placeholder="••••••" required>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox"> 记住我
+                    </label>
+                    <a href="#" class="forgot-link">忘记密码?</a>
+                </div>
+                <button type="submit" class="btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> 立即登录
+                </button>
+            </form>
+            <div class="social-login">
+                <p>或使用以下方式登录</p>
+                <div class="social-buttons">
+                    <button class="social-btn google"><i class="fab fa-google"></i></button>
+                    <button class="social-btn github"><i class="fab fa-github"></i></button>
+                    <button class="social-btn twitter"><i class="fab fa-twitter"></i></button>
+                </div>
+            </div>
+            <p class="auth-footer">还没有账号? <a href="#" onclick="router('register')">免费注册</a></p>
+        </div>
+    </div>
+
+    <!-- 4. 注册页 -->
+    <div id="register-page" class="page-section auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo"><i class="fas fa-layer-group"></i></div>
+                <h2>创建账号</h2>
+                <p>加入最大的演出视角社区</p>
+            </div>
+            <form onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> 用户昵称</label>
+                    <input type="text" id="regName" placeholder="例如: 摇滚杰克" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> 电子邮箱</label>
+                    <input type="email" id="regEmail" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> 设置密码</label>
+                    <input type="password" id="regPass" placeholder="至少6位字符" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> 确认密码</label>
+                    <input type="password" id="regPassConfirm" placeholder="再次输入密码" required>
+                </div>
+                <label class="checkbox-label terms">
+                    <input type="checkbox" required> 我同意 <a href="#">服务条款</a> 和 <a href="#">隐私政策</a>
+                </label>
+                <button type="submit" class="btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> 注册账号
+                </button>
+            </form>
+            <p class="auth-footer">已有账号? <a href="#" onclick="router('login')">直接登录</a></p>
+        </div>
+    </div>
+
+    <!-- 5. 用户中心 -->
+    <div id="profile-page" class="page-section">
+        <div class="container profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <h2 id="profileName">用户名</h2>
+                    <p id="profileEmail">user@example.com</p>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="stat-number" id="uploadCount">0</span>
+                            <span class="stat-label">上传</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-number" id="favoriteCount">0</span>
+                            <span class="stat-label">收藏</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-number" id="reviewCount">0</span>
+                            <span class="stat-label">评论</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchTab('uploads')">我的上传</button>
+                <button class="profile-tab" onclick="switchTab('favorites')">我的收藏</button>
+                <button class="profile-tab" onclick="switchTab('settings')">账号设置</button>
+            </div>
+            <div id="profileContent" class="profile-content">
+                <!-- JS 动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 上传模态框 -->
+    <div id="uploadModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-camera"></i> 分享新视角</h3>
+                <span class="close-btn" onclick="toggleModal(false)">&times;</span>
+            </div>
+            <form onsubmit="handleUpload(event)">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>场馆名称</label>
+                        <input type="text" id="upVenue" placeholder="例如: 鸟巢" required>
+                    </div>
+                    <div class="input-group">
+                        <label>城市</label>
+                        <input type="text" id="upCity" placeholder="例如: 北京" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>类型</label>
+                        <select id="upType">
+                            <option value="concert">演唱会</option>
+                            <option value="sport">体育赛事</option>
+                            <option value="theater">剧院</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>评分</label>
+                        <div class="star-rating-input" id="starInput">
+                            <i class="far fa-star" data-rating="1" onclick="setRating(1)"></i>
+                            <i class="far fa-star" data-rating="2" onclick="setRating(2)"></i>
+                            <i class="far fa-star" data-rating="3" onclick="setRating(3)"></i>
+                            <i class="far fa-star" data-rating="4" onclick="setRating(4)"></i>
+                            <i class="far fa-star" data-rating="5" onclick="setRating(5)"></i>
+                        </div>
+                        <input type="hidden" id="upRating" value="0">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>区域 (Section)</label>
+                        <input type="text" id="upSection" placeholder="A区 / 看台" required>
+                    </div>
+                    <div class="input-group">
+                        <label>座位详情</label>
+                        <input type="text" id="upSeat" placeholder="1排 1座" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>经度 (可选)</label>
+                        <input type="text" id="upLng" placeholder="例如: 116.3974">
+                    </div>
+                    <div class="input-group">
+                        <label>纬度 (可选)</label>
+                        <input type="text" id="upLat" placeholder="例如: 39.9042">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>图片链接 (URL)</label>
+                    <input type="text" id="upImg" placeholder="https://...">
+                </div>
+                <div class="input-group">
+                    <label>体验评价</label>
+                    <textarea id="upComment" rows="3" placeholder="视野是否开阔？音响效果如何？"></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-block">
+                    <i class="fas fa-paper-plane"></i> 发布照片
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 7. 图片预览模态框 -->
+    <div id="imageModal" class="modal-overlay image-modal" onclick="closeImageModal()">
+        <div class="modal-image-container" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeImageModal()">&times;</span>
+            <img id="modalImage" src="" alt="">
+            <div class="modal-image-info">
+                <h3 id="modalImageTitle"></h3>
+                <p id="modalImageDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 Footer -->
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <div class="footer-col brand-col">
+                <div class="footer-logo"><i class="fas fa-layer-group"></i> SeatView</div>
+                <p>致力于消除购票时的信息差，让每一张票都物有所值。全球最大的座位视角分享平台。</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-weixin"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>产品</h4>
+                <a href="#" onclick="router('home')">搜索视角</a>
+                <a href="#" onclick="toggleModal(true)">上传分享</a>
+                <a href="#">热门榜单</a>
+                <a href="#">最新发布</a>
+            </div>
+            <div class="footer-col">
+                <h4>支持</h4>
+                <a href="#">帮助中心</a>
+                <a href="#">社区准则</a>
+                <a href="#">联系我们</a>
+                <a href="#">反馈建议</a>
+            </div>
+            <div class="footer-col">
+                <h4>法律</h4>
+                <a href="#">隐私政策</a>
+                <a href="#">服务条款</a>
+                <a href="#">Cookie 设置</a>
+                <a href="#">版权声明</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                &copy; 2025 SeatView Inc. 保留所有权利. Make with <i class="fas fa-heart"></i> by WebDeveloper.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
