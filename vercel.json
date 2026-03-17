@@ -1,13 +1,14 @@
 {
   "version": 2,
   "name": "seatview-pro",
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "framework": null,
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.php"
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
@@ -20,6 +21,24 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/style.css",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css"
+        }
+      ]
+    },
+    {
+      "source": "/script.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
         }
       ]
     }
